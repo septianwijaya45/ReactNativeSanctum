@@ -10,11 +10,12 @@ import React from 'react';
 import {Text} from 'react-native';
 
 import {NavigationContainer} from '@react-navigation/native';
+import Router from './config/router';
 
 const App = () => {
   return (
     <NavigationContainer>
-      <Text>Test</Text>
+      <Router />
     </NavigationContainer>
   );
 };

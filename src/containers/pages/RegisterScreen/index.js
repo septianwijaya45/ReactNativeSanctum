@@ -1,13 +1,53 @@
 import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {TextInput} from 'react-native';
-import {Provider, useDispatch} from 'react-redux';
-import {createStore} from 'redux';
+import {Text, TouchableOpacity, View} from 'react-native';
 import {ButtonCustom, Input} from '../../../components/atoms';
+import {BASE_URL} from '@env';
+import axios from 'axios';
+import DeviceInfo from 'react-native-device-info';
+import {getDeviceName} from 'react-native-device-info';
 
 const RegisterScreen = ({navigation}) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState(''),
+    [email, setEmail] = useState(''),
+    [password, setPassword] = useState('');
+  const [errorMessage, setError] = useState(''),
+    [successMessage, setSuccess] = useState('');
+
+  const submit = () => {
+    if (!email && !password && !name) {
+      alert('Nama, Email dan Password Harus Diisi!');
+    } else if (!name) {
+      alert('Nama Harus Diisi!');
+    } else if (!email) {
+      alert('Email Harus Diisi!');
+    } else if (!password) {
+      alert('Password Harus Diisi!');
+    } else {
+      axios
+        .post(
+          `http://5dfb-125-166-13-219.ngrok.io/backendReactNative/public/api/register`,
+          {
+            name: name,
+            email: email,
+            password: password,
+            deviceName: DeviceInfo.getDeviceName(),
+          },
+        )
+        .then(response => {
+          if (response.data.status === false) {
+            const errMessage = response.data.messages;
+            setError(errMessage);
+            console.log(errMessage);
+          } else {
+            setError('');
+            setSuccess('User Success Create!');
+            console.log(successMessage);
+          }
+        })
+        .catch(e => setError(e));
+    }
+  };
+
   return (
     <View style={styles.wrapper.page}>
       <View style={styles.wrapper.title}>
@@ -15,12 +55,34 @@ const RegisterScreen = ({navigation}) => {
       </View>
       <View style={styles.form.atom}>
         <View style={styles.form.input}>
+          <Text>Name</Text>
+          <Input
+            placeholder="Insert Name"
+            onChangeText={text => setName(text)}
+            value={name}
+          />
+          {!!errorMessage && (
+            <Text style={{color: '#FF0000'}}>
+              {' '}
+              {errorMessage.name}
+              {''}
+            </Text>
+          )}
+        </View>
+        <View style={styles.form.input}>
           <Text>Email</Text>
           <Input
             placeholder="Insert Email"
             onChangeText={text => setEmail(text)}
             value={email}
           />
+          {!!errorMessage && (
+            <Text style={{color: '#FF0000'}}>
+              {' '}
+              {errorMessage.email}
+              {''}
+            </Text>
+          )}
         </View>
         <View style={styles.form.input}>
           <Text>Password</Text>
@@ -28,9 +90,16 @@ const RegisterScreen = ({navigation}) => {
             placeholder="Insert Password"
             onChangeText={text => setPassword(text)}
             value={password}
+            secureTextEntry={true}
           />
+          {!!errorMessage && (
+            <Text style={{color: '#FF0000'}}>{errorMessage.password}</Text>
+          )}
         </View>
-        <ButtonCustom title="Login" type="text" />
+        {!!successMessage && (
+          <Text style={{color: '#27ae60'}}>{successMessage}</Text>
+        )}
+        <ButtonCustom title="Register" type="text" onPress={submit} />
         <TouchableOpacity>
           <Text
             onPress={() => {

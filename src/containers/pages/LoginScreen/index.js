@@ -1,13 +1,37 @@
-import React, {useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {TextInput} from 'react-native';
 import {Provider, useDispatch} from 'react-redux';
 import {createStore} from 'redux';
 import {ButtonCustom, Input} from '../../../components/atoms';
 
 const LoginScreen = ({navigation}) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [errorMessage, setError] = useState(''),
+    [successMessage, setSuccess] = useState(''),
+    [email, setEmail] = useState(''),
+    [password, setPassword] = useState('');
+
+  const submit = () => {
+    const data = {
+      email,
+      password,
+    };
+    if (!email) {
+      Alert.alert('Email Harus Diisi!');
+    }
+
+    if (!password) {
+      Alert.alert('Password Harus Diisi!');
+    }
+
+    if (!email && !password) {
+      Alert.alert('Email dan Password Harus Diisi!');
+    }
+  };
+
+  useEffect(() => {
+    console.log(submit);
+  }, []);
   return (
     <View style={styles.wrapper.page}>
       <View style={styles.wrapper.title}>
@@ -28,9 +52,10 @@ const LoginScreen = ({navigation}) => {
             placeholder="Insert Password"
             onChangeText={text => setPassword(text)}
             value={password}
+            secureTextEntry={true}
           />
         </View>
-        <ButtonCustom title="Login" type="text" />
+        <ButtonCustom title="Login" type="text" onPress={submit} />
         <TouchableOpacity>
           <Text
             onPress={() => {

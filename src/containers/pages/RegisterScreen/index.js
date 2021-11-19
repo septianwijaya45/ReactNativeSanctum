@@ -9,7 +9,8 @@ import {getDeviceName} from 'react-native-device-info';
 const RegisterScreen = ({navigation}) => {
   const [name, setName] = useState(''),
     [email, setEmail] = useState(''),
-    [password, setPassword] = useState('');
+    [password, setPassword] = useState(''),
+    [deviceName, setDeviceName] = useState('');
   const [errorMessage, setError] = useState(''),
     [successMessage, setSuccess] = useState('');
 
@@ -23,16 +24,17 @@ const RegisterScreen = ({navigation}) => {
     } else if (!password) {
       alert('Password Harus Diisi!');
     } else {
+      DeviceInfo.getDeviceName().then(deviceName => {
+        setDeviceName(deviceName);
+      });
+      const data = {
+        name: name,
+        email: email,
+        password: password,
+        deviceName: deviceName,
+      };
       axios
-        .post(
-          `http://5dfb-125-166-13-219.ngrok.io/backendReactNative/public/api/register`,
-          {
-            name: name,
-            email: email,
-            password: password,
-            deviceName: DeviceInfo.getDeviceName(),
-          },
-        )
+        .post(`https://22f1-125-166-13-219.ngrok.io/api/register`, data)
         .then(response => {
           if (response.data.status === false) {
             const errMessage = response.data.messages;
@@ -44,7 +46,7 @@ const RegisterScreen = ({navigation}) => {
             console.log(successMessage);
           }
         })
-        .catch(e => setError(e));
+        .catch(e => console.log(e));
     }
   };
 
